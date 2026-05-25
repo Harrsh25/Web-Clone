@@ -92,6 +92,51 @@
     </div>
   </div>
 
+
+  <!-- ORBIT HEADER BADGE (fixed overlay, shows after orbit is selected) -->
+  <div id="orbit-badge-wrapper" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(100vw,448px);max-width:448px;z-index:48;height:52px;align-items:center;justify-content:flex-end;padding:0 12px;pointer-events:none;">
+    <button id="orbit-pill" onclick="toggleOrbitDropdown(event)" style="pointer-events:all;display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 7px;border-radius:20px;cursor:pointer;border:1px solid rgba(20,184,166,0.25);background:rgba(20,184,166,0.09);-webkit-tap-highlight-color:transparent;font-family:Inter,sans-serif;outline:none;">
+      <div id="orbit-dot" style="width:7px;height:7px;border-radius:50%;background:#14b8a6;flex-shrink:0;"></div>
+      <span id="orbit-pill-text" style="font-size:11px;font-weight:600;color:#0f766e;white-space:nowrap;"></span>
+      <svg id="orbit-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform 0.18s ease;"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+  </div>
+
+  <!-- ORBIT SWITCH DROPDOWN -->
+  <div id="orbit-dropdown" style="display:none;position:fixed;top:52px;left:50%;transform:translateX(-50%);width:min(100vw,448px);max-width:448px;z-index:48;padding:0 10px;">
+    <div style="background:#fff;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,0.13),0 2px 6px rgba(0,0,0,0.06);border:1px solid #e5e7eb;overflow:hidden;">
+      <div style="padding:10px 14px 7px;">
+        <p style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.9px;margin:0;">Switch Orbit</p>
+      </div>
+      <!-- HR Orbit option -->
+      <div id="orbit-opt-hr" onclick="switchOrbit('hr')" style="display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;border-top:1px solid #f5f5f5;-webkit-tap-highlight-color:transparent;transition:background 0.12s;" onmouseenter="this.style.background='#f9fafb'" onmouseleave="this.style.background=''" ontouchstart="this.style.background='#f9fafb'" ontouchend="this.style.background=''">
+        <div style="width:36px;height:36px;border-radius:11px;background:#f0fdfa;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #ccfbf1;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <p style="font-size:13px;font-weight:600;color:#111827;margin:0 0 1px;letter-spacing:-0.1px;">HR Orbit</p>
+          <p style="font-size:11px;color:#6b7280;margin:0;">Payroll, leave &amp; attendance</p>
+        </div>
+        <div id="orbit-check-hr" style="display:none;width:20px;height:20px;border-radius:50%;background:#14b8a6;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+      </div>
+      <!-- Productivity option -->
+      <div id="orbit-opt-prod" onclick="switchOrbit('productivity')" style="display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;border-top:1px solid #f5f5f5;-webkit-tap-highlight-color:transparent;transition:background 0.12s;" onmouseenter="this.style.background='#f9fafb'" onmouseleave="this.style.background=''" ontouchstart="this.style.background='#f9fafb'" ontouchend="this.style.background=''">
+        <div style="width:36px;height:36px;border-radius:11px;background:#f5f3ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #ddd6fe;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <p style="font-size:13px;font-weight:600;color:#111827;margin:0 0 1px;letter-spacing:-0.1px;">Productivity</p>
+          <p style="font-size:11px;color:#6b7280;margin:0;">Tasks, projects &amp; goals</p>
+        </div>
+        <div id="orbit-check-prod" style="display:none;width:20px;height:20px;border-radius:50%;background:#7c3aed;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="root"></div>
   <script>(function(){const s=document.createElement("link").relList;if(s&&s.supports&&s.supports("modulepreload"))return;for(const r of document.querySelectorAll('link[rel="modulepreload"]'))a(r);new MutationObserver(r=>{for(const l of r)if(l.type==="childList")for(const o of l.addedNodes)o.tagName==="LINK"&&o.rel==="modulepreload"&&a(o)}).observe(document,{childList:!0,subtree:!0});function n(r){const l={};return r.integrity&&(l.integrity=r.integrity),r.referrerPolicy&&(l.referrerPolicy=r.referrerPolicy),r.crossOrigin==="use-credentials"?l.credentials="include":r.crossOrigin==="anonymous"?l.credentials="omit":l.credentials="same-origin",l}function a(r){if(r.ep)return;r.ep=!0;const l=n(r);fetch(r.href,l)}})();function ih(t){return t&&t.__esModule&&Object.prototype.hasOwnProperty.call(t,"default")?t.default:t}var m0={exports:{}},$l={},h0={exports:{}},Ie={};/**
  * @license React
@@ -681,46 +726,135 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
 </script>
 <script>
 (function(){
-  var screen = document.getElementById('orbit-selection-screen');
-  if (!screen) return;
+  var selScreen = document.getElementById('orbit-selection-screen');
+  var currentOrbitType = 'hr';
 
-  // Entrance animation
-  screen.style.opacity = '0';
-  screen.style.transform = 'scale(0.97)';
-  screen.style.transition = 'opacity 0.32s ease, transform 0.32s ease';
-  requestAnimationFrame(function(){
+  /* ── Entrance animation ── */
+  if (selScreen) {
+    selScreen.style.opacity = '0';
+    selScreen.style.transform = 'scale(0.97)';
+    selScreen.style.transition = 'opacity 0.32s ease, transform 0.32s ease';
     requestAnimationFrame(function(){
-      screen.style.opacity = '1';
-      screen.style.transform = 'scale(1)';
+      requestAnimationFrame(function(){
+        selScreen.style.opacity = '1';
+        selScreen.style.transform = 'scale(1)';
+      });
     });
-  });
+  }
 
-  // Card press ripple on touch/click
+  /* ── Card press feedback ── */
   ['orbit-hr-card','orbit-prod-card'].forEach(function(id){
     var card = document.getElementById(id);
     if (!card) return;
-    card.addEventListener('mousedown', function(){ card.style.transform='scale(0.975)'; card.style.boxShadow='0 1px 4px rgba(0,0,0,0.06)'; });
-    card.addEventListener('mouseup', function(){ card.style.transform='scale(1)'; card.style.boxShadow='0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04)'; });
-    card.addEventListener('mouseleave', function(){ card.style.transform='scale(1)'; card.style.boxShadow='0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04)'; });
-    card.addEventListener('touchstart', function(){ card.style.transform='scale(0.965)'; card.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'; }, {passive:true});
-    card.addEventListener('touchend', function(){ card.style.transform='scale(1)'; card.style.boxShadow='0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04)'; }, {passive:true});
+    card.addEventListener('mousedown',  function(){ card.style.transform='scale(0.975)'; card.style.boxShadow='0 1px 4px rgba(0,0,0,0.06)'; });
+    card.addEventListener('mouseup',    function(){ card.style.transform='scale(1)';     card.style.boxShadow='0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04)'; });
+    card.addEventListener('mouseleave', function(){ card.style.transform='scale(1)';     card.style.boxShadow='0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04)'; });
+    card.addEventListener('touchstart', function(){ card.style.transform='scale(0.965)'; card.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'; },{passive:true});
+    card.addEventListener('touchend',   function(){ card.style.transform='scale(1)';     card.style.boxShadow='0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04)'; },{passive:true});
   });
 
+  /* ── Update badge pill style & dropdown checkmarks ── */
+  function updateBadge(type) {
+    var pill    = document.getElementById('orbit-pill');
+    var dot     = document.getElementById('orbit-dot');
+    var text    = document.getElementById('orbit-pill-text');
+    var caret   = document.getElementById('orbit-caret');
+    var hrChk   = document.getElementById('orbit-check-hr');
+    var prChk   = document.getElementById('orbit-check-prod');
+    if (!pill) return;
+
+    if (type === 'hr') {
+      pill.style.background   = 'rgba(20,184,166,0.09)';
+      pill.style.borderColor  = 'rgba(20,184,166,0.25)';
+      dot.style.background    = '#14b8a6';
+      text.style.color        = '#0f766e';
+      text.textContent        = 'HR Orbit';
+      caret.setAttribute('stroke','#0f766e');
+    } else {
+      pill.style.background   = 'rgba(109,40,217,0.08)';
+      pill.style.borderColor  = 'rgba(109,40,217,0.22)';
+      dot.style.background    = '#7c3aed';
+      text.style.color        = '#6d28d9';
+      text.textContent        = 'Productivity';
+      caret.setAttribute('stroke','#6d28d9');
+    }
+    if (hrChk) hrChk.style.display = (type === 'hr')           ? 'flex' : 'none';
+    if (prChk) prChk.style.display = (type === 'productivity')  ? 'flex' : 'none';
+  }
+
+  /* ── Show the header badge and align dropdown top to real header height ── */
+  function showOrbitBadge() {
+    var wrapper = document.getElementById('orbit-badge-wrapper');
+    var dd      = document.getElementById('orbit-dropdown');
+    if (!wrapper) return;
+    wrapper.style.display = 'flex';
+    /* sync dropdown top with actual sticky header height */
+    setTimeout(function(){
+      var hdr = document.querySelector('.screen-header');
+      if (hdr && dd) {
+        var h = hdr.getBoundingClientRect().height || 52;
+        wrapper.style.height = h + 'px';
+        dd.style.top = h + 'px';
+      }
+    }, 250);
+  }
+
+  /* ── selectOrbit — called by the selection screen cards ── */
   window.selectOrbit = function(type) {
+    currentOrbitType = type;
+    updateBadge(type);
+
     var cardId = type === 'hr' ? 'orbit-hr-card' : 'orbit-prod-card';
     var card = document.getElementById(cardId);
     if (card) {
-      card.style.transform = 'scale(0.96)';
-      card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+      card.style.transform  = 'scale(0.96)';
+      card.style.boxShadow  = '0 1px 3px rgba(0,0,0,0.05)';
     }
     setTimeout(function(){
-      screen.style.transition = 'opacity 0.38s cubic-bezier(0.4,0,0.2,1), transform 0.38s cubic-bezier(0.4,0,0.2,1)';
-      screen.style.opacity = '0';
-      screen.style.transform = 'scale(1.05)';
-      screen.style.pointerEvents = 'none';
-      setTimeout(function(){ screen.style.display = 'none'; }, 400);
+      if (!selScreen) return;
+      selScreen.style.transition  = 'opacity 0.38s cubic-bezier(0.4,0,0.2,1), transform 0.38s cubic-bezier(0.4,0,0.2,1)';
+      selScreen.style.opacity     = '0';
+      selScreen.style.transform   = 'scale(1.05)';
+      selScreen.style.pointerEvents = 'none';
+      setTimeout(function(){
+        selScreen.style.display = 'none';
+        setTimeout(showOrbitBadge, 280);
+      }, 400);
     }, 110);
   };
+
+  /* ── Toggle the switch-orbit dropdown ── */
+  window.toggleOrbitDropdown = function(e) {
+    if (e) e.stopPropagation();
+    var dd    = document.getElementById('orbit-dropdown');
+    var caret = document.getElementById('orbit-caret');
+    if (!dd) return;
+    var isOpen = dd.style.display !== 'none';
+    dd.style.display = isOpen ? 'none' : 'block';
+    if (caret) caret.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  };
+
+  /* ── Switch orbit from dropdown ── */
+  window.switchOrbit = function(type) {
+    currentOrbitType = type;
+    updateBadge(type);
+    var dd    = document.getElementById('orbit-dropdown');
+    var caret = document.getElementById('orbit-caret');
+    if (dd)    dd.style.display      = 'none';
+    if (caret) caret.style.transform = 'rotate(0deg)';
+  };
+
+  /* ── Close dropdown on outside tap/click ── */
+  document.addEventListener('click', function(e) {
+    var dd   = document.getElementById('orbit-dropdown');
+    var pill = document.getElementById('orbit-pill');
+    if (!dd || dd.style.display === 'none') return;
+    if (pill && pill.contains(e.target)) return;
+    if (dd.contains(e.target)) return;
+    dd.style.display = 'none';
+    var caret = document.getElementById('orbit-caret');
+    if (caret) caret.style.transform = 'rotate(0deg)';
+  });
 })();
 </script>
 </body>
