@@ -885,86 +885,108 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   /* ── Keep badge alive: poll every 400 ms and re-inject if React removed it ── */
 
   /* ── Per-orbit module & nav-tab visibility ── */
-  var PROD_NAV_HIDE    = ['HR'];   /* hide the HR bottom-nav tab */
-  /* All HR-specific labels — More menu + HR sub-menu */
+  var PROD_NAV_HIDE    = ['HR'];
   var PROD_MODULE_HIDE = [
-    /* More-menu items */
     'Shifts','Timesheet','Payroll','Travel','Performance',
     'My Wallet','Skills','Wellness','HR Orbit',
-    /* HR sub-menu items (HR tab hidden, but hide these too in case React renders them) */
     'Recruitment','Onboarding','Offboarding',
     'Grievances','Compliance','Benefits','HR Helpdesk','Asset Management'
   ];
 
   function safeHide(el) {
-    /* Never hide the badge or any ancestor of it */
     var badge = document.getElementById('orbit-badge-inline');
     if (badge && (el === badge || el.contains(badge) || badge.contains(el))) return;
     el.setAttribute('data-orbit-hide','1');
     el.style.setProperty('display','none','important');
   }
 
+  /* Scan a DOM subtree and immediately hide any HR-module buttons found */
+  function scanAndHide(root) {
+    if (currentOrbitType !== 'productivity') return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    var node;
+    while ((node = walker.nextNode())) {
+      var t = node.nodeValue && node.nodeValue.trim();
+      if (!t || !PROD_MODULE_HIDE.includes(t)) continue;
+      var el = node.parentElement;
+      for (var d = 0; d < 6; d++) {
+        if (!el || el === root) break;
+        if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button') {
+          safeHide(el); break;
+        }
+        el = el.parentElement;
+      }
+    }
+  }
+
+  /* Hide the HR tab from the bottom nav bar */
+  function hideHRNavTab() {
+    if (currentOrbitType !== 'productivity') return;
+    var nav = document.querySelector('.bottom-nav-bar');
+    if (!nav) return;
+    var nw = document.createTreeWalker(nav, NodeFilter.SHOW_TEXT, null, false);
+    var nn;
+    while ((nn = nw.nextNode())) {
+      var nt = nn.nodeValue && nn.nodeValue.trim();
+      if (!nt) continue;
+      var nel = nn.parentElement;
+      while (nel && nel.parentElement && nel.parentElement !== nav) nel = nel.parentElement;
+      if (!nel || nel.parentElement !== nav) continue;
+      if (PROD_NAV_HIDE.includes(nt)) safeHide(nel);
+    }
+  }
+
   function applyModuleVisibility() {
-    var isProd = (currentOrbitType === 'productivity');
-    /* HR orbit → show everything (remove any stale hide flags) */
-    if (!isProd) {
+    if (currentOrbitType !== 'productivity') {
+      /* HR orbit: restore any stale hidden flags */
       document.querySelectorAll('[data-orbit-hide="1"]').forEach(function(el){
         el.removeAttribute('data-orbit-hide');
         el.style.removeProperty('display');
       });
       return;
     }
-
-    /* ① Bottom nav – hide the HR tab in Productivity */
-    var nav = document.querySelector('.bottom-nav-bar');
-    if (nav) {
-      var nw = document.createTreeWalker(nav, NodeFilter.SHOW_TEXT, null, false);
-      var nn;
-      while ((nn = nw.nextNode())) {
-        var nt = nn.nodeValue && nn.nodeValue.trim();
-        if (!nt) continue;
-        var nel = nn.parentElement;
-        while (nel && nel.parentElement && nel.parentElement !== nav) nel = nel.parentElement;
-        if (!nel || nel.parentElement !== nav) continue;
-        if (PROD_NAV_HIDE.includes(nt)) safeHide(nel);
-      }
-    }
-
-    /* ② Restrict the #root search to elements inside nav-related containers only,
-          not the full tree, to avoid accidental hiding of dashboard content */
+    hideHRNavTab();
+    /* Full-tree scan as a safety net (covers already-rendered items) */
     var root2 = document.getElementById('root');
-    if (!root2) return;
-    /* Only look inside elements that are likely nav/menu panels (not the main content) */
-    var panels = root2.querySelectorAll('[class*="sheet"],[class*="modal"],[class*="drawer"],[class*="menu"],[class*="more"],[class*="panel"]');
-    var searchEl = panels.length ? panels : [root2]; /* fallback to root only if no panels found */
-    searchEl.forEach(function(container) {
-      var mw = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
-      var mn;
-      while ((mn = mw.nextNode())) {
-        var mt = mn.nodeValue && mn.nodeValue.trim();
-        if (!mt || !PROD_MODULE_HIDE.includes(mt)) continue;
-        var mel = mn.parentElement;
-        for (var d = 0; d < 5; d++) {
-          if (!mel || mel === root2) break;
-          if (mel.tagName === 'BUTTON' || mel.tagName === 'A' || mel.getAttribute('role') === 'button') {
-            safeHide(mel); break;
-          }
-          try { if (window.getComputedStyle(mel).cursor === 'pointer') { safeHide(mel); break; }} catch(e){}
-          mel = mel.parentElement;
-        }
-      }
+    if (root2) scanAndHide(root2);
+    /* Also scan document.body children outside #root (React Portals) */
+    Array.prototype.forEach.call(document.body.children, function(child) {
+      var id = child.id || '';
+      if (id === 'root' || id === 'orbit-selection-screen' || id === 'orbit-dropdown') return;
+      scanAndHide(child);
     });
   }
 
+  /* MutationObserver: hide HR items the instant React renders them (no flash) */
+  function startModuleObserver() {
+    if (currentOrbitType !== 'productivity') return;
+    if (!window.MutationObserver) return;
+    var observer = new MutationObserver(function(mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        var added = mutations[i].addedNodes;
+        for (var j = 0; j < added.length; j++) {
+          var node = added[j];
+          if (node.nodeType !== 1) continue; /* only element nodes */
+          var id = node.id || '';
+          if (id === 'orbit-selection-screen' || id === 'orbit-dropdown' || id === 'orbit-badge-inline') continue;
+          scanAndHide(node);
+        }
+      }
+    });
+    /* Watch the entire body so Portals rendered outside #root are also caught */
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
   function startBadge() {
-    injectInlineBadge();        /* immediate first attempt */
+    injectInlineBadge();
     applyModuleVisibility();
+    startModuleObserver(); /* start instant-hide observer for Productivity */
     var polls = 0;
     var iv = setInterval(function(){
       injectInlineBadge();
-      applyModuleVisibility();
+      hideHRNavTab(); /* keep nav tab hidden across React re-renders */
       polls++;
-      if (polls === 75) { clearInterval(iv); setInterval(function(){ injectInlineBadge(); applyModuleVisibility(); }, 2000); }
+      if (polls === 75) { clearInterval(iv); setInterval(function(){ injectInlineBadge(); hideHRNavTab(); }, 2000); }
     }, 400);
   }
 
