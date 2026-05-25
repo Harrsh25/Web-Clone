@@ -3,186 +3,220 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Inventia — Choose Your Product</title>
+  <title>Inventia</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html,body{width:100%;height:100%;font-family:'Inter',sans-serif;overflow:hidden;background:#eef1fb}
+    html,body{width:100%;height:100%;font-family:'Inter',sans-serif;overflow:hidden;background:#f0f2f8}
 
-    /* ── LANDING ── */
     #landing{
-      position:fixed;inset:0;z-index:10;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      background:#eef1fb;padding:24px 20px;
-      transition:opacity .4s ease,transform .4s ease;
+      position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
+      align-items:center;background:#f0f2f8;overflow-y:auto;
+      transition:opacity .38s ease,transform .38s ease;
     }
     #landing.out{opacity:0;transform:scale(1.04);pointer-events:none}
 
-    .lnd-title{
-      font-size:28px;font-weight:800;color:#111827;
-      letter-spacing:-.5px;text-align:center;margin-bottom:10px;
+    /* top bar */
+    .top-bar{
+      width:100%;background:#fff;padding:44px 20px 14px;
+      border-bottom:1px solid #ececec;
+      display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
     }
-    .lnd-sub{
-      font-size:14px;color:#6b7280;text-align:center;
-      font-weight:400;margin-bottom:40px;line-height:1.5;
+    .t-logo{display:flex;align-items:center;gap:9px}
+    .t-icon{
+      width:34px;height:34px;border-radius:9px;
+      background:linear-gradient(135deg,#1a56db,#7c3aed);
+      display:flex;align-items:center;justify-content:center;
     }
-    .lnd-sub span{color:#3b82f6}
+    .t-icon svg{width:18px;height:18px;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    .t-name{font-size:17px;font-weight:800;color:#111827;letter-spacing:-.3px}
+    .t-name em{font-style:normal;color:#6366f1}
+    .t-badge{
+      font-size:10px;font-weight:700;letter-spacing:.4px;padding:4px 10px;
+      border-radius:20px;text-transform:uppercase;
+      background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;
+    }
 
-    /* ── CARDS ROW ── */
-    .cards-row{
-      display:flex;flex-direction:row;gap:16px;
-      width:100%;max-width:860px;
-      justify-content:center;align-items:stretch;
-    }
-    @media(max-width:620px){
-      .cards-row{flex-direction:column;max-width:360px}
-      .lnd-title{font-size:22px}
+    /* body */
+    .body{width:100%;max-width:430px;flex:1;display:flex;flex-direction:column;padding:28px 20px 40px}
+
+    .greet{margin-bottom:20px}
+    .g-hi{font-size:13px;color:#9ca3af;margin-bottom:2px}
+    .g-name{font-size:22px;font-weight:800;color:#111827;letter-spacing:-.4px}
+    .g-sub{font-size:13px;color:#6b7280;margin-top:3px}
+
+    .sec-label{
+      font-size:11px;font-weight:700;color:#9ca3af;
+      letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px;
     }
 
+    /* card */
     .pcard{
-      flex:1;min-width:0;
-      background:#fff;border-radius:16px;
-      border:1.5px solid #e5e7eb;
-      padding:20px 18px;
+      width:100%;background:#fff;border-radius:18px;padding:18px 16px;
       display:flex;align-items:center;gap:14px;
       cursor:pointer;position:relative;overflow:hidden;
-      box-shadow:0 1px 4px rgba(0,0,0,.06);
-      transition:box-shadow .2s ease,border-color .2s ease,transform .18s cubic-bezier(.34,1.56,.64,1);
+      border:1.5px solid #f0f0f0;
+      box-shadow:0 1px 6px rgba(0,0,0,.05);
+      transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,border-color .18s;
       -webkit-tap-highlight-color:transparent;user-select:none;
+      margin-bottom:12px;
     }
-    .pcard:hover{
-      box-shadow:0 8px 28px rgba(0,0,0,.10);
-      border-color:#d1d5db;
-      transform:translateY(-3px);
-    }
-    .pcard:active{transform:scale(.97)}
-    .pcard.disabled{cursor:default;opacity:.7}
-    .pcard.disabled:hover{transform:none;box-shadow:0 1px 4px rgba(0,0,0,.06);border-color:#e5e7eb}
+    .pcard:last-of-type{margin-bottom:0}
+    .pcard:active{transform:scale(.975)}
+    .pcard:hover{box-shadow:0 6px 24px rgba(0,0,0,.09);border-color:#e0e0e0;transform:translateY(-2px)}
 
-    /* icon box */
-    .picon{
-      width:52px;height:52px;border-radius:14px;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    }
-    .picon svg{width:26px;height:26px;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
-    .pi-hr{background:linear-gradient(135deg,#a855f7,#ec4899)}
-    .pi-prod{background:linear-gradient(135deg,#10b981,#059669)}
-    .pi-act{background:linear-gradient(135deg,#f59e0b,#f97316)}
+    /* left stripe */
+    .pcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:18px 0 0 18px}
+    .card-hr::before  {background:linear-gradient(180deg,#a855f7,#ec4899)}
+    .card-prod::before{background:linear-gradient(180deg,#10b981,#3b82f6)}
+
+    /* icon */
+    .p-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .p-icon svg{width:24px;height:24px;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    .pi-hr  {background:linear-gradient(135deg,#c026d3,#ec4899)}
+    .pi-prod{background:linear-gradient(135deg,#10b981,#3b82f6)}
 
     /* text */
-    .ptext{flex:1;min-width:0}
-    .pname{font-size:15px;font-weight:700;color:#111827;margin-bottom:3px;white-space:nowrap}
-    .psub{font-size:12px;color:#9ca3af;font-weight:400}
-    .psub.soon{color:#f59e0b;font-weight:500}
+    .p-text{flex:1;min-width:0}
+    .p-name{font-size:15px;font-weight:700;color:#111827;margin-bottom:3px}
+    .p-desc{font-size:12px;color:#9ca3af;line-height:1.4}
+
+    /* chips */
+    .p-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+    .chip{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+    .ch-hr  {background:#fdf4ff;color:#a855f7;border:1px solid #e9d5ff}
+    .ch-prod{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+    .ch-b   {background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
+
+    /* meta */
+    .p-meta{display:flex;align-items:center;gap:6px;margin-top:7px}
+    .p-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .dot-hr  {background:#a855f7}
+    .dot-prod{background:#10b981}
+    .p-act{font-size:11px;color:#9ca3af}
 
     /* arrow */
-    .parrow{
-      width:28px;height:28px;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    .p-arrow{
+      width:34px;height:34px;border-radius:50%;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
       background:#f3f4f6;transition:background .18s,transform .18s;
     }
-    .parrow svg{width:14px;height:14px;stroke:#6b7280;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
-    .pcard:not(.disabled):hover .parrow{background:#111827;transform:translateX(2px)}
-    .pcard:not(.disabled):hover .parrow svg{stroke:#fff}
-    .pcard.disabled .parrow svg{stroke:#d1d5db}
+    .p-arrow svg{width:15px;height:15px;stroke:#6b7280;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none;transition:stroke .18s}
+    .pcard:hover .p-arrow{background:#111827;transform:translateX(2px)}
+    .pcard:hover .p-arrow svg{stroke:#fff}
+
+    .lnd-foot{font-size:11px;color:#d1d5db;text-align:center;padding:0 20px 28px;flex-shrink:0}
 
     /* ripple */
-    .ripple{position:absolute;border-radius:50%;transform:scale(0);animation:rpl .55s linear;pointer-events:none;background:rgba(0,0,0,.06)}
+    .ripple{position:absolute;border-radius:50%;transform:scale(0);animation:rpl .55s linear;pointer-events:none;background:rgba(0,0,0,.05)}
     @keyframes rpl{to{transform:scale(6);opacity:0}}
 
-    /* ── APP VIEWER ── */
+    /* viewer */
     #viewer{
       position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:#fff;
       transform:translateY(100%);transition:transform .42s cubic-bezier(.32,.72,0,1);
     }
     #viewer.open{transform:translateY(0)}
 
-    #topbar{
-      display:flex;align-items:center;padding:10px 14px;
-      background:#fff;border-bottom:1px solid #e5e7eb;
-      flex-shrink:0;min-height:46px;
+    #v-bar{
+      display:flex;align-items:center;padding:42px 14px 10px;
+      background:#fff;border-bottom:1px solid #f0f0f0;flex-shrink:0;
     }
     #back-btn{
-      display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
-      background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:10px;
-      color:#111827;transition:background .15s;font-family:'Inter',sans-serif;
+      display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600;
+      color:#1a56db;background:none;border:none;cursor:pointer;
+      padding:4px 8px;border-radius:8px;font-family:'Inter',sans-serif;transition:background .15s;
     }
-    #back-btn:hover{background:#f3f4f6}
-    #back-btn svg{width:16px;height:16px;stroke:#111827;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
-    #pill{
-      font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;
-      text-transform:uppercase;letter-spacing:.5px;margin-left:8px;
+    #back-btn:hover{background:#eff4ff}
+    #back-btn svg{width:18px;height:18px;stroke:#1a56db;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    #v-pill{
+      margin-left:8px;font-size:11px;font-weight:700;padding:4px 12px;
+      border-radius:20px;text-transform:uppercase;letter-spacing:.4px;
     }
-    .p-hr  {background:#fdf4ff;color:#a855f7;border:1px solid #e9d5ff}
-    .p-prod{background:#f0fdf4;color:#059669;border:1px solid #a7f3d0}
-
-    #frame{flex:1;width:100%;border:none;display:block}
+    .pill-hr  {background:#fdf4ff;color:#a855f7;border:1px solid #e9d5ff}
+    .pill-prod{background:#f0fdf4;color:#059669;border:1px solid #a7f3d0}
+    #app-frame{flex:1;width:100%;border:none;display:block}
   </style>
 </head>
 <body>
 
-<!-- LANDING -->
 <div id="landing">
-  <h1 class="lnd-title">Choose Your Product</h1>
-  <p class="lnd-sub">Select a product suite to get started with <span>workforce management</span>.</p>
+  <div class="top-bar">
+    <div class="t-logo">
+      <div class="t-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5"/><path d="M12 5a7 7 0 1 0 0 14A7 7 0 0 0 12 5"/></svg>
+      </div>
+      <span class="t-name">Invent<em>ia</em></span>
+    </div>
+    <span class="t-badge">v2.0</span>
+  </div>
 
-  <div class="cards-row">
+  <div class="body">
+    <div class="greet">
+      <div class="g-hi">Welcome back,</div>
+      <div class="g-name">Arjun Sharma &#x1F44B;</div>
+      <div class="g-sub">Choose a product to continue</div>
+    </div>
 
-    <!-- HR Suite -->
-    <div class="pcard" id="c-hr" onclick="openOrbit(event,this,'hr')">
-      <div class="picon pi-hr">
+    <div class="sec-label">Your Workspaces</div>
+
+    <div class="pcard card-hr" onclick="openOrbit(event,this,'hr')">
+      <div class="p-icon pi-hr">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-      <div class="ptext">
-        <div class="pname">HR Suite</div>
-        <div class="psub">Last activity 1 hour ago</div>
+      <div class="p-text">
+        <div class="p-name">HR Suite</div>
+        <div class="p-desc">Payroll, recruitment, benefits &amp; compliance</div>
+        <div class="p-chips">
+          <span class="chip ch-hr">Payroll</span>
+          <span class="chip ch-hr">Onboarding</span>
+          <span class="chip ch-hr">Benefits</span>
+        </div>
+        <div class="p-meta">
+          <div class="p-dot dot-hr"></div>
+          <span class="p-act">Last activity 1 hour ago</span>
+        </div>
       </div>
-      <div class="parrow">
+      <div class="p-arrow">
         <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
     </div>
 
-    <!-- Productivity Suite -->
-    <div class="pcard" id="c-prod" onclick="openOrbit(event,this,'prod')">
-      <div class="picon pi-prod">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    <div class="pcard card-prod" onclick="openOrbit(event,this,'prod')">
+      <div class="p-icon pi-prod">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       </div>
-      <div class="ptext">
-        <div class="pname">Productivity Suite</div>
-        <div class="psub">Last activity 1 hour ago</div>
+      <div class="p-text">
+        <div class="p-name">Productivity Suite</div>
+        <div class="p-desc">Tasks, projects, shifts &amp; team collaboration</div>
+        <div class="p-chips">
+          <span class="chip ch-prod">Tasks</span>
+          <span class="chip ch-b">Projects</span>
+          <span class="chip ch-prod">Shifts</span>
+        </div>
+        <div class="p-meta">
+          <div class="p-dot dot-prod"></div>
+          <span class="p-act">Last activity 1 hour ago</span>
+        </div>
       </div>
-      <div class="parrow">
+      <div class="p-arrow">
         <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
     </div>
-
-    <!-- Activity Suite (Coming Soon) -->
-    <div class="pcard disabled">
-      <div class="picon pi-act">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      </div>
-      <div class="ptext">
-        <div class="pname">Activity Suite</div>
-        <div class="psub soon">Coming Soon</div>
-      </div>
-      <div class="parrow">
-        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </div>
-    </div>
-
   </div>
+
+  <div class="lnd-foot">&copy; 2026 Inventia &middot; All rights reserved</div>
 </div>
 
-<!-- APP VIEWER -->
 <div id="viewer">
-  <div id="topbar">
+  <div id="v-bar">
     <button id="back-btn" onclick="closeOrbit()">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Products
+      Back
     </button>
-    <span id="pill"></span>
+    <span id="v-pill"></span>
   </div>
-  <iframe id="frame" title="Orbit App"></iframe>
+  <iframe id="app-frame" title="Orbit App"></iframe>
 </div>
 
 <script>
@@ -785,22 +819,14 @@ Status: Paid on April 30\`:S.includes("attendance")||S.includes("punch")?"For mi
 <\/script>
 </body>
 </html>`;
-
 const cache = {};
-
-function getBlobUrl(initScreen) {
-  if (cache[initScreen]) return cache[initScreen];
-  const injected = APP.replace(
-    '<\/head>',
-    '<script>window.name="' + initScreen + '";<\/script></head>'
-  );
-  const blob = new Blob([injected], { type: 'text/html' });
-  cache[initScreen] = URL.createObjectURL(blob);
-  return cache[initScreen];
+function getBlobUrl(screen) {
+  if (cache[screen]) return cache[screen];
+  const html = APP.replace('<\/head>', '<script>window.name="' + screen + '";<\/script></head>');
+  cache[screen] = URL.createObjectURL(new Blob([html], {type:'text/html'}));
+  return cache[screen];
 }
-
 function openOrbit(e, card, type) {
-  // ripple
   const span = document.createElement('span');
   const r = card.getBoundingClientRect();
   const sz = Math.max(r.width, r.height) * 2.5;
@@ -808,20 +834,13 @@ function openOrbit(e, card, type) {
   span.className = 'ripple';
   card.appendChild(span);
   span.addEventListener('animationend', () => span.remove());
-
-  const isHR   = type === 'hr';
-  const screen = isHR ? 'hr-services' : 'dashboard';
-  const label  = isHR ? 'HR Suite' : 'Productivity Suite';
-  const cls    = isHR ? 'p-hr' : 'p-prod';
-
-  document.getElementById('frame').src = getBlobUrl(screen);
-  document.getElementById('pill').textContent = label;
-  document.getElementById('pill').className   = cls;
-
+  const isHR = type === 'hr';
+  document.getElementById('app-frame').src = getBlobUrl('dashboard');
+  document.getElementById('v-pill').textContent = isHR ? 'HR Suite' : 'Productivity Suite';
+  document.getElementById('v-pill').className   = isHR ? 'pill-hr' : 'pill-prod';
   document.getElementById('landing').classList.add('out');
   document.getElementById('viewer').classList.add('open');
 }
-
 function closeOrbit() {
   document.getElementById('viewer').classList.remove('open');
   document.getElementById('landing').classList.remove('out');
