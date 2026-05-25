@@ -825,9 +825,11 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
     if (prChk) prChk.style.display = (type === 'productivity')  ? 'flex' : 'none';
   }
 
-  /* ── Walk DOM to find the flex div that contains the "Inventia" <p> ── */
+  /* ── Walk DOM INSIDE #root to find the flex div that holds "Inventia" ── */
   function findInventiaContainer() {
-    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var root = document.getElementById('root');
+    if (!root) return null;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     var node;
     while ((node = walker.nextNode())) {
       if (node.nodeValue && node.nodeValue.trim() === 'Inventia') {
@@ -840,10 +842,20 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
 
   /* ── Build and insert the inline orbit pill ── */
   function injectInlineBadge() {
-    if (document.getElementById('orbit-badge-inline')) {
-      applyBadgeStyle(currentOrbitType); /* refresh style in case it was reset */
-      return;
+    var root = document.getElementById('root');
+    var badge = document.getElementById('orbit-badge-inline');
+
+    /* If badge exists but is OUTSIDE #root (injected in wrong place), remove it */
+    if (badge && root && !root.contains(badge)) {
+      badge.parentNode.removeChild(badge);
+      badge = null;
     }
+
+    if (badge) {
+      applyBadgeStyle(currentOrbitType);
+      return; /* badge is in the right place */
+    }
+
     var container = findInventiaContainer();
     if (!container) return;
 
