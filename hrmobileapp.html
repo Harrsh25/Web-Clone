@@ -885,8 +885,16 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   /* ── Keep badge alive: poll every 400 ms and re-inject if React removed it ── */
 
   /* ── Per-orbit module & nav-tab visibility ── */
-  var PROD_NAV_HIDE    = ['HR'];   /* hide the HR bottom-nav tab in Productivity */
-  var PROD_MODULE_HIDE = ['Payroll','Timesheet','Shifts','My Wallet','Travel'];
+  var PROD_NAV_HIDE    = ['HR'];   /* hide the HR bottom-nav tab */
+  /* All HR-specific labels — More menu + HR sub-menu */
+  var PROD_MODULE_HIDE = [
+    /* More-menu items */
+    'Shifts','Timesheet','Payroll','Travel','Performance',
+    'My Wallet','Skills','Wellness','HR Orbit',
+    /* HR sub-menu items (HR tab hidden, but hide these too in case React renders them) */
+    'Recruitment','Onboarding','Offboarding',
+    'Grievances','Compliance','Benefits','HR Helpdesk','Asset Management'
+  ];
 
   function safeHide(el) {
     /* Never hide the badge or any ancestor of it */
