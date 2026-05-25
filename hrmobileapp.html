@@ -93,16 +93,9 @@
   </div>
 
 
-  <!-- ORBIT HEADER BADGE (fixed overlay, shows after orbit is selected) -->
-  <div id="orbit-badge-wrapper" style="display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(100vw,448px);max-width:448px;z-index:48;height:52px;align-items:center;justify-content:flex-end;padding:0 12px;pointer-events:none;">
-    <button id="orbit-pill" onclick="toggleOrbitDropdown(event)" style="pointer-events:all;display:inline-flex;align-items:center;gap:5px;padding:4px 9px 4px 7px;border-radius:20px;cursor:pointer;border:1px solid rgba(20,184,166,0.25);background:rgba(20,184,166,0.09);-webkit-tap-highlight-color:transparent;font-family:Inter,sans-serif;outline:none;">
-      <div id="orbit-dot" style="width:7px;height:7px;border-radius:50%;background:#14b8a6;flex-shrink:0;"></div>
-      <span id="orbit-pill-text" style="font-size:11px;font-weight:600;color:#0f766e;white-space:nowrap;"></span>
-      <svg id="orbit-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform 0.18s ease;"><path d="M6 9l6 6 6-6"/></svg>
-    </button>
-  </div>
-
+  
   <!-- ORBIT SWITCH DROPDOWN -->
+  WN -->
   <div id="orbit-dropdown" style="display:none;position:fixed;top:52px;left:50%;transform:translateX(-50%);width:min(100vw,448px);max-width:448px;z-index:48;padding:0 10px;">
     <div style="background:#fff;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,0.13),0 2px 6px rgba(0,0,0,0.06);border:1px solid #e5e7eb;overflow:hidden;">
       <div style="padding:10px 14px 7px;">
@@ -729,7 +722,7 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   var selScreen = document.getElementById('orbit-selection-screen');
   var currentOrbitType = 'hr';
 
-  /* ── Entrance animation ── */
+  /* ── Selection screen entrance animation ── */
   if (selScreen) {
     selScreen.style.opacity = '0';
     selScreen.style.transform = 'scale(0.97)';
@@ -742,7 +735,7 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
     });
   }
 
-  /* ── Card press feedback ── */
+  /* ── Card press feedback on selection screen ── */
   ['orbit-hr-card','orbit-prod-card'].forEach(function(id){
     var card = document.getElementById(id);
     if (!card) return;
@@ -753,72 +746,110 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
     card.addEventListener('touchend',   function(){ card.style.transform='scale(1)';     card.style.boxShadow='0 2px 10px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04)'; },{passive:true});
   });
 
-  /* ── Update badge pill style & dropdown checkmarks ── */
-  function updateBadge(type) {
-    var pill    = document.getElementById('orbit-pill');
-    var dot     = document.getElementById('orbit-dot');
-    var text    = document.getElementById('orbit-pill-text');
-    var caret   = document.getElementById('orbit-caret');
-    var hrChk   = document.getElementById('orbit-check-hr');
-    var prChk   = document.getElementById('orbit-check-prod');
-    if (!pill) return;
+  /* ── Apply badge colour + text based on orbit type ── */
+  function applyBadgeStyle(type) {
+    var badge = document.getElementById('orbit-badge-inline');
+    var dot   = document.getElementById('orbit-dot');
+    var text  = document.getElementById('orbit-pill-text');
+    var caret = document.getElementById('orbit-caret');
+    var hrChk = document.getElementById('orbit-check-hr');
+    var prChk = document.getElementById('orbit-check-prod');
+    if (!badge) return;
 
     if (type === 'hr') {
-      pill.style.background   = 'rgba(20,184,166,0.09)';
-      pill.style.borderColor  = 'rgba(20,184,166,0.25)';
-      dot.style.background    = '#14b8a6';
-      text.style.color        = '#0f766e';
-      text.textContent        = 'HR Orbit';
-      caret.setAttribute('stroke','#0f766e');
+      badge.style.background  = 'rgba(20,184,166,0.10)';
+      badge.style.borderColor = 'rgba(20,184,166,0.28)';
+      if (dot)   dot.style.background = '#14b8a6';
+      if (text)  { text.style.color = '#0f766e'; text.textContent = 'HR Orbit'; }
+      if (caret) caret.setAttribute('stroke','#0f766e');
     } else {
-      pill.style.background   = 'rgba(109,40,217,0.08)';
-      pill.style.borderColor  = 'rgba(109,40,217,0.22)';
-      dot.style.background    = '#7c3aed';
-      text.style.color        = '#6d28d9';
-      text.textContent        = 'Productivity';
-      caret.setAttribute('stroke','#6d28d9');
+      badge.style.background  = 'rgba(109,40,217,0.08)';
+      badge.style.borderColor = 'rgba(109,40,217,0.24)';
+      if (dot)   dot.style.background = '#7c3aed';
+      if (text)  { text.style.color = '#6d28d9'; text.textContent = 'Productivity'; }
+      if (caret) caret.setAttribute('stroke','#6d28d9');
     }
-    if (hrChk) hrChk.style.display = (type === 'hr')           ? 'flex' : 'none';
+    if (hrChk) hrChk.style.display = (type === 'hr')            ? 'flex' : 'none';
     if (prChk) prChk.style.display = (type === 'productivity')  ? 'flex' : 'none';
   }
 
-  /* ── Show the header badge and align dropdown top to real header height ── */
-  function showOrbitBadge() {
-    var wrapper = document.getElementById('orbit-badge-wrapper');
-    var dd      = document.getElementById('orbit-dropdown');
-    if (!wrapper) return;
-    wrapper.style.display = 'flex';
-    /* sync dropdown top with actual sticky header height */
-    setTimeout(function(){
-      var hdr = document.querySelector('.screen-header');
-      if (hdr && dd) {
-        var h = hdr.getBoundingClientRect().height || 52;
-        wrapper.style.height = h + 'px';
-        dd.style.top = h + 'px';
+  /* ── Find the flex container that holds the "Inventia" text ── */
+  function findInventiaContainer() {
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue && node.nodeValue.trim() === 'Inventia') {
+        /* node → textNode, parentElement → <p>, parentElement → flex div */
+        var p = node.parentElement;
+        return p ? p.parentElement : null;
       }
-    }, 250);
+    }
+    return null;
   }
 
-  /* ── selectOrbit — called by the selection screen cards ── */
+  /* ── Build and inject the inline badge ── */
+  function injectInlineBadge() {
+    if (document.getElementById('orbit-badge-inline')) return; // already there
+    var container = findInventiaContainer();
+    if (!container) return;
+
+    var badge = document.createElement('div');
+    badge.id = 'orbit-badge-inline';
+    badge.style.cssText = [
+      'display:inline-flex','align-items:center','gap:4px',
+      'padding:3px 8px 3px 6px','border-radius:20px','cursor:pointer',
+      'border:1px solid rgba(20,184,166,0.28)','background:rgba(20,184,166,0.10)',
+      '-webkit-tap-highlight-color:transparent','flex-shrink:0',
+      'margin-left:4px','vertical-align:middle'
+    ].join(';');
+
+    badge.innerHTML =
+      '<div id="orbit-dot" style="width:6px;height:6px;border-radius:50%;background:#14b8a6;flex-shrink:0;"></div>' +
+      '<span id="orbit-pill-text" style="font-size:10.5px;font-weight:600;color:#0f766e;white-space:nowrap;font-family:Inter,sans-serif;"></span>' +
+      '<svg id="orbit-caret" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform 0.18s ease;"><path d="M6 9l6 6 6-6"/></svg>';
+
+    badge.addEventListener('click', function(e){ toggleOrbitDropdown(e); });
+    container.appendChild(badge);
+    applyBadgeStyle(currentOrbitType);
+  }
+
+  /* ── MutationObserver: re-inject badge if React removes it ── */
+  var mo = new MutationObserver(function(){
+    injectInlineBadge();
+  });
+
+  /* ── Called after user picks an orbit on the selection screen ── */
+  function afterOrbitSelected() {
+    mo.observe(document.body, {childList:true, subtree:true});
+    /* Try immediately, then keep trying via the observer */
+    var attempts = 0;
+    var interval = setInterval(function(){
+      injectInlineBadge();
+      if (document.getElementById('orbit-badge-inline') || ++attempts > 20) {
+        clearInterval(interval);
+      }
+    }, 100);
+  }
+
+  /* ── Animate the selection screen away ── */
   window.selectOrbit = function(type) {
     currentOrbitType = type;
-    updateBadge(type);
 
     var cardId = type === 'hr' ? 'orbit-hr-card' : 'orbit-prod-card';
     var card = document.getElementById(cardId);
     if (card) {
-      card.style.transform  = 'scale(0.96)';
-      card.style.boxShadow  = '0 1px 3px rgba(0,0,0,0.05)';
+      card.style.transform = 'scale(0.96)';
+      card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
     }
     setTimeout(function(){
       if (!selScreen) return;
-      selScreen.style.transition  = 'opacity 0.38s cubic-bezier(0.4,0,0.2,1), transform 0.38s cubic-bezier(0.4,0,0.2,1)';
-      selScreen.style.opacity     = '0';
-      selScreen.style.transform   = 'scale(1.05)';
+      selScreen.style.transition = 'opacity 0.38s cubic-bezier(0.4,0,0.2,1), transform 0.38s cubic-bezier(0.4,0,0.2,1)';
+      selScreen.style.opacity    = '0';
+      selScreen.style.transform  = 'scale(1.05)';
       selScreen.style.pointerEvents = 'none';
       setTimeout(function(){
         selScreen.style.display = 'none';
-        setTimeout(showOrbitBadge, 280);
+        afterOrbitSelected();
       }, 400);
     }, 110);
   };
@@ -830,14 +861,23 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
     var caret = document.getElementById('orbit-caret');
     if (!dd) return;
     var isOpen = dd.style.display !== 'none';
-    dd.style.display = isOpen ? 'none' : 'block';
-    if (caret) caret.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+
+    if (!isOpen) {
+      /* Position dropdown below the header */
+      var hdr = document.querySelector('.screen-header');
+      if (hdr) dd.style.top = (hdr.getBoundingClientRect().height) + 'px';
+      dd.style.display = 'block';
+      if (caret) caret.style.transform = 'rotate(180deg)';
+    } else {
+      dd.style.display = 'none';
+      if (caret) caret.style.transform = 'rotate(0deg)';
+    }
   };
 
   /* ── Switch orbit from dropdown ── */
   window.switchOrbit = function(type) {
     currentOrbitType = type;
-    updateBadge(type);
+    applyBadgeStyle(type);
     var dd    = document.getElementById('orbit-dropdown');
     var caret = document.getElementById('orbit-caret');
     if (dd)    dd.style.display      = 'none';
@@ -846,10 +886,10 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
 
   /* ── Close dropdown on outside tap/click ── */
   document.addEventListener('click', function(e) {
-    var dd   = document.getElementById('orbit-dropdown');
-    var pill = document.getElementById('orbit-pill');
+    var dd    = document.getElementById('orbit-dropdown');
+    var badge = document.getElementById('orbit-badge-inline');
     if (!dd || dd.style.display === 'none') return;
-    if (pill && pill.contains(e.target)) return;
+    if (badge && badge.contains(e.target)) return;
     if (dd.contains(e.target)) return;
     dd.style.display = 'none';
     var caret = document.getElementById('orbit-caret');
