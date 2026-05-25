@@ -8,23 +8,26 @@
 </style>
 <script>
 /* Orbit storage isolation: runs before React, namespaces localStorage per orbit.
-   Uses a one-time sessionStorage flag (_orbit_temp) so:
-   - Every fresh page load / F5 shows the orbit selection screen.
-   - The post-selection reload reads the flag, sets the namespace proxy,
-     clears the flag, and skips the selection screen.                         */
+   Priority:
+   1. sessionStorage._orbit_temp  — one-time flag set just before a reload
+      triggered by selectOrbit/switchOrbit.  Consumed immediately.
+   2. localStorage._orbit_saved   — the last chosen orbit; set on select/switch.
+      Lets F5 skip the selection screen and stay in the same orbit.
+   3. Neither present             — fresh first load → show selection screen.  */
 (function(){
   var _get   = Storage.prototype.getItem;
   var _set   = Storage.prototype.setItem;
   var _rm    = Storage.prototype.removeItem;
   var _clear = Storage.prototype.clear;
 
-  /* One-time flag written by selectOrbit/switchOrbit, cleared here on read */
-  var sel = sessionStorage.getItem('_orbit_temp');
+  /* Read one-time switch flag first, then fall back to saved orbit */
+  var sel = sessionStorage.getItem('_orbit_temp') ||
+            _get.call(localStorage, '_orbit_saved');
   window.__orbitType = sel || '';
   document.documentElement.setAttribute('data-orbit', window.__orbitType || '');
 
   if (sel) {
-    sessionStorage.removeItem('_orbit_temp'); /* consume immediately */
+    sessionStorage.removeItem('_orbit_temp'); /* consume switch flag */
     var pfx = (sel === 'productivity') ? 'prod__' : 'hr__';
 
     Storage.prototype.getItem = function(k) {
@@ -979,7 +982,8 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
       selScreen.style.transform   = 'scale(1.05)';
       selScreen.style.pointerEvents = 'none';
       setTimeout(function(){
-        sessionStorage.setItem('_orbit_temp', type); /* one-time flag */
+        sessionStorage.setItem('_orbit_temp', type); /* one-time reload flag */
+        localStorage.setItem('_orbit_saved', type);     /* persist across F5 */
         window.location.reload();
       }, 420);
     }, 110);
@@ -988,18 +992,24 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   /* ─────────────────────────────────────────────────────────────────────────
      toggleOrbitDropdown — open / close the switch panel
   ───────────────────────────────────────────────────────────────────────── */
+  var _ddJustOpened = false; /* prevents outside-click from closing same tap */
+
   window.toggleOrbitDropdown = function(e) {
-    if (e) e.stopPropagation();
+    if (e) { e.stopPropagation(); e.preventDefault(); }
     var dd    = document.getElementById('orbit-dropdown');
     var caret = document.getElementById('orbit-caret');
     if (!dd) return;
-    var isOpen = dd.style.display !== 'none';
+    var isOpen = dd.dataset.ddOpen === '1'; /* use data attribute — not style.display */
     if (!isOpen) {
+      dd.dataset.ddOpen = '1';
+      _ddJustOpened = true;
+      setTimeout(function(){ _ddJustOpened = false; }, 80);
       var hdr = document.querySelector('.screen-header');
       if (hdr) dd.style.top = hdr.getBoundingClientRect().height + 'px';
       dd.style.display = 'block';
       if (caret) caret.style.transform = 'rotate(180deg)';
     } else {
+      dd.dataset.ddOpen = '0';
       dd.style.display = 'none';
       if (caret) caret.style.transform = 'rotate(0deg)';
     }
@@ -1013,22 +1023,25 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   window.switchOrbit = function(type) {
     var dd    = document.getElementById('orbit-dropdown');
     var caret = document.getElementById('orbit-caret');
-    if (dd)    { dd.style.display      = 'none'; }
+    if (dd)    { dd.style.display = 'none'; dd.dataset.ddOpen = '0'; }
     if (caret) { caret.style.transform = 'rotate(0deg)'; }
 
     if (type === currentOrbitType) return; /* same orbit, nothing to do */
 
     sessionStorage.setItem('_orbit_temp', type);
+    localStorage.setItem('_orbit_saved', type);
     window.location.reload();
   };
 
   /* ── Close dropdown on outside tap ── */
   document.addEventListener('click', function(e) {
+    if (_ddJustOpened) return; /* same tap that opened it — ignore */
     var dd    = document.getElementById('orbit-dropdown');
     var badge = document.getElementById('orbit-badge-inline');
-    if (!dd || dd.style.display === 'none') return;
+    if (!dd || dd.dataset.ddOpen !== '1') return;
     if (badge && badge.contains(e.target)) return;
     if (dd.contains(e.target)) return;
+    dd.dataset.ddOpen = '0';
     dd.style.display = 'none';
     var caret = document.getElementById('orbit-caret');
     if (caret) caret.style.transform = 'rotate(0deg)';
