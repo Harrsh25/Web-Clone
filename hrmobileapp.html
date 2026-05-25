@@ -882,20 +882,29 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   /* ── Keep badge alive: poll every 400 ms and re-inject if React removed it ── */
 
   /* ── Per-orbit module & nav-tab visibility ── */
-  var PROD_NAV_HIDE    = ['HR'];
+  var PROD_NAV_HIDE    = ['HR'];   /* hide the HR bottom-nav tab in Productivity */
   var PROD_MODULE_HIDE = ['Payroll','Timesheet','Shifts','My Wallet','Travel'];
-  var HR_NAV_HIDE      = [];
-  var HR_MODULE_HIDE   = ['Projects'];
+
+  function safeHide(el) {
+    /* Never hide the badge or any ancestor of it */
+    var badge = document.getElementById('orbit-badge-inline');
+    if (badge && (el === badge || el.contains(badge) || badge.contains(el))) return;
+    el.setAttribute('data-orbit-hide','1');
+    el.style.setProperty('display','none','important');
+  }
 
   function applyModuleVisibility() {
-    var isHR   = (currentOrbitType === 'hr');
     var isProd = (currentOrbitType === 'productivity');
-    if (!isHR && !isProd) return;
+    /* HR orbit → show everything (remove any stale hide flags) */
+    if (!isProd) {
+      document.querySelectorAll('[data-orbit-hide="1"]').forEach(function(el){
+        el.removeAttribute('data-orbit-hide');
+        el.style.removeProperty('display');
+      });
+      return;
+    }
 
-    var navHide    = isProd ? PROD_NAV_HIDE    : HR_NAV_HIDE;
-    var moduleHide = isProd ? PROD_MODULE_HIDE : HR_MODULE_HIDE;
-
-    /* ① Bottom nav tabs – walk direct children of .bottom-nav-bar */
+    /* ① Bottom nav – hide the HR tab in Productivity */
     var nav = document.querySelector('.bottom-nav-bar');
     if (nav) {
       var nw = document.createTreeWalker(nav, NodeFilter.SHOW_TEXT, null, false);
@@ -903,48 +912,41 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
       while ((nn = nw.nextNode())) {
         var nt = nn.nodeValue && nn.nodeValue.trim();
         if (!nt) continue;
-        /* climb to direct child of nav bar */
         var nel = nn.parentElement;
         while (nel && nel.parentElement && nel.parentElement !== nav) nel = nel.parentElement;
         if (!nel || nel.parentElement !== nav) continue;
-        if (navHide.includes(nt)) {
-          nel.setAttribute('data-orbit-hide','1');
-          nel.style.setProperty('display','none','important');
-        } else if (nel.getAttribute('data-orbit-hide') === '1') {
-          nel.removeAttribute('data-orbit-hide');
-          nel.style.removeProperty('display');
-        }
+        if (PROD_NAV_HIDE.includes(nt)) safeHide(nel);
       }
     }
 
-    /* ② More-menu / sheet items */
+    /* ② Restrict the #root search to elements inside nav-related containers only,
+          not the full tree, to avoid accidental hiding of dashboard content */
     var root2 = document.getElementById('root');
-    if (!root2 || moduleHide.length === 0) return;
-    var mw = document.createTreeWalker(root2, NodeFilter.SHOW_TEXT, null, false);
-    var mn;
-    while ((mn = mw.nextNode())) {
-      var mt = mn.nodeValue && mn.nodeValue.trim();
-      if (!mt || !moduleHide.includes(mt)) continue;
-      var mel = mn.parentElement;
-      for (var d = 0; d < 6; d++) {
-        if (!mel || mel === root2) break;
-        var tag = mel.tagName;
-        if (tag === 'BUTTON' || tag === 'A' || mel.getAttribute('role') === 'button') {
-          mel.setAttribute('data-orbit-hide','1');
-          mel.style.setProperty('display','none','important');
-          break;
+    if (!root2) return;
+    /* Only look inside elements that are likely nav/menu panels (not the main content) */
+    var panels = root2.querySelectorAll('[class*="sheet"],[class*="modal"],[class*="drawer"],[class*="menu"],[class*="more"],[class*="panel"]');
+    var searchEl = panels.length ? panels : [root2]; /* fallback to root only if no panels found */
+    searchEl.forEach(function(container) {
+      var mw = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+      var mn;
+      while ((mn = mw.nextNode())) {
+        var mt = mn.nodeValue && mn.nodeValue.trim();
+        if (!mt || !PROD_MODULE_HIDE.includes(mt)) continue;
+        var mel = mn.parentElement;
+        for (var d = 0; d < 5; d++) {
+          if (!mel || mel === root2) break;
+          if (mel.tagName === 'BUTTON' || mel.tagName === 'A' || mel.getAttribute('role') === 'button') {
+            safeHide(mel); break;
+          }
+          try { if (window.getComputedStyle(mel).cursor === 'pointer') { safeHide(mel); break; }} catch(e){}
+          mel = mel.parentElement;
         }
-        try { if (window.getComputedStyle(mel).cursor === 'pointer') {
-          mel.setAttribute('data-orbit-hide','1');
-          mel.style.setProperty('display','none','important');
-          break;
-        }} catch(e){}
-        mel = mel.parentElement;
       }
-    }
+    });
   }
 
   function startBadge() {
+    injectInlineBadge();        /* immediate first attempt */
     applyModuleVisibility();
     var polls = 0;
     var iv = setInterval(function(){
