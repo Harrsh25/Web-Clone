@@ -21,6 +21,7 @@
   /* One-time flag written by selectOrbit/switchOrbit, cleared here on read */
   var sel = sessionStorage.getItem('_orbit_temp');
   window.__orbitType = sel || '';
+  document.documentElement.setAttribute('data-orbit', window.__orbitType || '');
 
   if (sel) {
     sessionStorage.removeItem('_orbit_temp'); /* consume immediately */
@@ -51,6 +52,7 @@
   /* If sel is empty: fresh load → __orbitType='' → selection screen will show */
 })();
 </script>
+<style>[data-orbit-hide="1"]{display:none!important}</style>
 </head>
 <body>
   <!-- ORBIT SELECTION SCREEN -->
@@ -878,14 +880,78 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   }
 
   /* ── Keep badge alive: poll every 400 ms and re-inject if React removed it ── */
+
+  /* ── Per-orbit module & nav-tab visibility ── */
+  var PROD_NAV_HIDE    = ['HR'];
+  var PROD_MODULE_HIDE = ['Payroll','Timesheet','Shifts','My Wallet','Travel'];
+  var HR_NAV_HIDE      = [];
+  var HR_MODULE_HIDE   = ['Projects'];
+
+  function applyModuleVisibility() {
+    var isHR   = (currentOrbitType === 'hr');
+    var isProd = (currentOrbitType === 'productivity');
+    if (!isHR && !isProd) return;
+
+    var navHide    = isProd ? PROD_NAV_HIDE    : HR_NAV_HIDE;
+    var moduleHide = isProd ? PROD_MODULE_HIDE : HR_MODULE_HIDE;
+
+    /* ① Bottom nav tabs – walk direct children of .bottom-nav-bar */
+    var nav = document.querySelector('.bottom-nav-bar');
+    if (nav) {
+      var nw = document.createTreeWalker(nav, NodeFilter.SHOW_TEXT, null, false);
+      var nn;
+      while ((nn = nw.nextNode())) {
+        var nt = nn.nodeValue && nn.nodeValue.trim();
+        if (!nt) continue;
+        /* climb to direct child of nav bar */
+        var nel = nn.parentElement;
+        while (nel && nel.parentElement && nel.parentElement !== nav) nel = nel.parentElement;
+        if (!nel || nel.parentElement !== nav) continue;
+        if (navHide.includes(nt)) {
+          nel.setAttribute('data-orbit-hide','1');
+          nel.style.setProperty('display','none','important');
+        } else if (nel.getAttribute('data-orbit-hide') === '1') {
+          nel.removeAttribute('data-orbit-hide');
+          nel.style.removeProperty('display');
+        }
+      }
+    }
+
+    /* ② More-menu / sheet items */
+    var root2 = document.getElementById('root');
+    if (!root2 || moduleHide.length === 0) return;
+    var mw = document.createTreeWalker(root2, NodeFilter.SHOW_TEXT, null, false);
+    var mn;
+    while ((mn = mw.nextNode())) {
+      var mt = mn.nodeValue && mn.nodeValue.trim();
+      if (!mt || !moduleHide.includes(mt)) continue;
+      var mel = mn.parentElement;
+      for (var d = 0; d < 6; d++) {
+        if (!mel || mel === root2) break;
+        var tag = mel.tagName;
+        if (tag === 'BUTTON' || tag === 'A' || mel.getAttribute('role') === 'button') {
+          mel.setAttribute('data-orbit-hide','1');
+          mel.style.setProperty('display','none','important');
+          break;
+        }
+        try { if (window.getComputedStyle(mel).cursor === 'pointer') {
+          mel.setAttribute('data-orbit-hide','1');
+          mel.style.setProperty('display','none','important');
+          break;
+        }} catch(e){}
+        mel = mel.parentElement;
+      }
+    }
+  }
+
   function startBadge() {
-    /* Try immediately then keep polling */
+    applyModuleVisibility();
     var polls = 0;
     var iv = setInterval(function(){
       injectInlineBadge();
+      applyModuleVisibility();
       polls++;
-      /* After 30 s, slow down to once every 2 s */
-      if (polls === 75) { clearInterval(iv); setInterval(injectInlineBadge, 2000); }
+      if (polls === 75) { clearInterval(iv); setInterval(function(){ injectInlineBadge(); applyModuleVisibility(); }, 2000); }
     }, 400);
   }
 
