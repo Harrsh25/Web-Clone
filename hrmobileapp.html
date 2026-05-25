@@ -903,6 +903,16 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
   /* Scan a DOM subtree and immediately hide any HR-module buttons found */
   function scanAndHide(root) {
     if (currentOrbitType !== 'productivity') return;
+    /* If the added node itself is a button, check it directly first */
+    if (root && (root.tagName === 'BUTTON' || root.tagName === 'A' ||
+                 root.getAttribute && root.getAttribute('role') === 'button')) {
+      var rw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+      var rn;
+      while ((rn = rw.nextNode())) {
+        var rt = rn.nodeValue && rn.nodeValue.trim();
+        if (rt && PROD_MODULE_HIDE.includes(rt)) { safeHide(root); return; }
+      }
+    }
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
     var node;
     while ((node = walker.nextNode())) {
@@ -910,10 +920,12 @@ Status: Paid on April 30`:S.includes("attendance")||S.includes("punch")?"For mis
       if (!t || !PROD_MODULE_HIDE.includes(t)) continue;
       var el = node.parentElement;
       for (var d = 0; d < 6; d++) {
-        if (!el || el === root) break;
+        if (!el) break;
+        /* Check for interactive element BEFORE boundary check */
         if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button') {
           safeHide(el); break;
         }
+        if (el === root) break; /* stop at scan boundary */
         el = el.parentElement;
       }
     }
