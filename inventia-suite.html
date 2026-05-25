@@ -3,203 +3,182 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Inventia — Orbit Suite</title>
+  <title>Inventia — Choose Your Product</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif}
+    html,body{width:100%;height:100%;font-family:'Inter',sans-serif;overflow:hidden;background:#eef1fb}
 
     /* ── LANDING ── */
     #landing{
       position:fixed;inset:0;z-index:10;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      padding:28px 20px;
-      background:linear-gradient(160deg,#0a0f1e 0%,#0d1b3e 40%,#130a2a 100%);
+      background:#eef1fb;padding:24px 20px;
       transition:opacity .4s ease,transform .4s ease;
     }
-    #landing.out{opacity:0;transform:scale(1.05);pointer-events:none}
+    #landing.out{opacity:0;transform:scale(1.04);pointer-events:none}
 
-    .orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;animation:drift 8s ease-in-out infinite alternate}
-    .orb1{width:300px;height:300px;background:rgba(26,86,219,.18);top:-60px;left:-80px;animation-delay:0s}
-    .orb2{width:260px;height:260px;background:rgba(124,58,237,.14);bottom:-40px;right:-60px;animation-delay:-4s}
-    @keyframes drift{to{transform:translate(18px,26px)}}
-
-    .lnd-head{text-align:center;margin-bottom:36px;position:relative;z-index:1}
-    .logo-wrap{
-      width:56px;height:56px;margin:0 auto 14px;border-radius:18px;
-      background:linear-gradient(135deg,#1a56db,#7c3aed);
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 0 30px rgba(139,92,246,.4),0 0 0 1px rgba(255,255,255,.08);
+    .lnd-title{
+      font-size:28px;font-weight:800;color:#111827;
+      letter-spacing:-.5px;text-align:center;margin-bottom:10px;
     }
-    .logo-wrap svg{width:26px;height:26px;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
-    .brand{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.4px;margin-bottom:4px}
-    .brand em{font-style:normal;color:#818cf8}
-    .tagline{font-size:13px;color:rgba(148,163,184,.7)}
+    .lnd-sub{
+      font-size:14px;color:#6b7280;text-align:center;
+      font-weight:400;margin-bottom:40px;line-height:1.5;
+    }
+    .lnd-sub span{color:#3b82f6}
 
-    .cards{width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;position:relative;z-index:1}
+    /* ── CARDS ROW ── */
+    .cards-row{
+      display:flex;flex-direction:row;gap:16px;
+      width:100%;max-width:860px;
+      justify-content:center;align-items:stretch;
+    }
+    @media(max-width:620px){
+      .cards-row{flex-direction:column;max-width:360px}
+      .lnd-title{font-size:22px}
+    }
 
-    .card{
-      border-radius:22px;padding:22px 20px 18px;cursor:pointer;
-      display:flex;flex-direction:column;gap:14px;
-      position:relative;overflow:hidden;
-      border:1.5px solid transparent;
-      transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s ease,border-color .18s;
+    .pcard{
+      flex:1;min-width:0;
+      background:#fff;border-radius:16px;
+      border:1.5px solid #e5e7eb;
+      padding:20px 18px;
+      display:flex;align-items:center;gap:14px;
+      cursor:pointer;position:relative;overflow:hidden;
+      box-shadow:0 1px 4px rgba(0,0,0,.06);
+      transition:box-shadow .2s ease,border-color .2s ease,transform .18s cubic-bezier(.34,1.56,.64,1);
       -webkit-tap-highlight-color:transparent;user-select:none;
     }
-    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:22px 22px 0 0}
-    .card:active{transform:scale(.97)!important}
-
-    .c-hrms{background:linear-gradient(145deg,rgba(26,86,219,.13),rgba(30,58,138,.07));border-color:rgba(59,130,246,.2)}
-    .c-hrms::before{background:linear-gradient(90deg,#1a56db,#60a5fa)}
-    .c-hrms:hover{transform:translateY(-5px);box-shadow:0 18px 48px rgba(26,86,219,.22);border-color:rgba(59,130,246,.4)}
-
-    .c-prod{background:linear-gradient(145deg,rgba(124,58,237,.13),rgba(76,29,149,.07));border-color:rgba(139,92,246,.2)}
-    .c-prod::before{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
-    .c-prod:hover{transform:translateY(-5px);box-shadow:0 18px 48px rgba(124,58,237,.22);border-color:rgba(139,92,246,.4)}
-
-    .card-top{display:flex;align-items:center;gap:14px}
-    .icon-box{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .icon-box svg{width:24px;height:24px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
-    .ib-hrms{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(96,165,250,.1));border:1px solid rgba(59,130,246,.25)}
-    .ib-hrms svg{stroke:#60a5fa}
-    .ib-prod{background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(167,139,250,.1));border:1px solid rgba(139,92,246,.25)}
-    .ib-prod svg{stroke:#a78bfa}
-
-    .card-info{flex:1;min-width:0}
-    .card-name{font-size:17px;font-weight:800;color:#f1f5f9;letter-spacing:-.3px;margin-bottom:4px}
-    .card-desc{font-size:12px;color:rgba(148,163,184,.75);line-height:1.5}
-
-    .tags{display:flex;flex-wrap:wrap;gap:5px}
-    .tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
-    .tb{background:rgba(59,130,246,.13);color:#93c5fd;border:1px solid rgba(59,130,246,.2)}
-    .tg{background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)}
-    .ta{background:rgba(245,158,11,.12);color:#fcd34d;border:1px solid rgba(245,158,11,.2)}
-    .tv{background:rgba(139,92,246,.13);color:#c4b5fd;border:1px solid rgba(139,92,246,.2)}
-    .tp{background:rgba(236,72,153,.12);color:#f9a8d4;border:1px solid rgba(236,72,153,.2)}
-
-    .card-foot{
-      display:flex;align-items:center;justify-content:space-between;
-      padding-top:12px;border-top:1px solid rgba(255,255,255,.07);
+    .pcard:hover{
+      box-shadow:0 8px 28px rgba(0,0,0,.10);
+      border-color:#d1d5db;
+      transform:translateY(-3px);
     }
-    .cta{font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;transition:gap .18s}
-    .c-hrms .cta{color:#60a5fa}
-    .c-prod .cta{color:#a78bfa}
-    .card:hover .cta{gap:9px}
-    .cta svg{width:13px;height:13px;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke:currentColor}
-    .badge{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
-    .bl{background:rgba(16,185,129,.13);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)}
-    .bv{background:rgba(139,92,246,.13);color:#c4b5fd;border:1px solid rgba(139,92,246,.2)}
+    .pcard:active{transform:scale(.97)}
+    .pcard.disabled{cursor:default;opacity:.7}
+    .pcard.disabled:hover{transform:none;box-shadow:0 1px 4px rgba(0,0,0,.06);border-color:#e5e7eb}
 
-    .foot{position:relative;z-index:1;margin-top:22px;font-size:11px;color:rgba(100,116,139,.45);text-align:center}
+    /* icon box */
+    .picon{
+      width:52px;height:52px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .picon svg{width:26px;height:26px;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    .pi-hr{background:linear-gradient(135deg,#a855f7,#ec4899)}
+    .pi-prod{background:linear-gradient(135deg,#10b981,#059669)}
+    .pi-act{background:linear-gradient(135deg,#f59e0b,#f97316)}
+
+    /* text */
+    .ptext{flex:1;min-width:0}
+    .pname{font-size:15px;font-weight:700;color:#111827;margin-bottom:3px;white-space:nowrap}
+    .psub{font-size:12px;color:#9ca3af;font-weight:400}
+    .psub.soon{color:#f59e0b;font-weight:500}
+
+    /* arrow */
+    .parrow{
+      width:28px;height:28px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+      background:#f3f4f6;transition:background .18s,transform .18s;
+    }
+    .parrow svg{width:14px;height:14px;stroke:#6b7280;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    .pcard:not(.disabled):hover .parrow{background:#111827;transform:translateX(2px)}
+    .pcard:not(.disabled):hover .parrow svg{stroke:#fff}
+    .pcard.disabled .parrow svg{stroke:#d1d5db}
+
+    /* ripple */
+    .ripple{position:absolute;border-radius:50%;transform:scale(0);animation:rpl .55s linear;pointer-events:none;background:rgba(0,0,0,.06)}
+    @keyframes rpl{to{transform:scale(6);opacity:0}}
 
     /* ── APP VIEWER ── */
     #viewer{
-      position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:#000;
+      position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;background:#fff;
       transform:translateY(100%);transition:transform .42s cubic-bezier(.32,.72,0,1);
     }
     #viewer.open{transform:translateY(0)}
 
     #topbar{
-      display:flex;align-items:center;padding:10px 12px;
-      background:linear-gradient(90deg,#0f172a,#1a1f2e);
-      border-bottom:1px solid rgba(255,255,255,.07);
+      display:flex;align-items:center;padding:10px 14px;
+      background:#fff;border-bottom:1px solid #e5e7eb;
       flex-shrink:0;min-height:46px;
     }
     #back-btn{
-      display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;
+      display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
       background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:10px;
-      transition:background .15s;font-family:'Inter',sans-serif;
+      color:#111827;transition:background .15s;font-family:'Inter',sans-serif;
     }
-    #back-btn:hover{background:rgba(255,255,255,.07)}
-    #back-btn svg{width:16px;height:16px;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke:currentColor}
-    #pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;margin-left:8px}
-    .p-hrms{background:rgba(26,86,219,.18);color:#93c5fd;border:1px solid rgba(59,130,246,.25)}
-    .p-prod{background:rgba(124,58,237,.18);color:#c4b5fd;border:1px solid rgba(139,92,246,.25)}
-    #back-btn.hrms-btn{color:#60a5fa}
-    #back-btn.prod-btn{color:#a78bfa}
+    #back-btn:hover{background:#f3f4f6}
+    #back-btn svg{width:16px;height:16px;stroke:#111827;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    #pill{
+      font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;
+      text-transform:uppercase;letter-spacing:.5px;margin-left:8px;
+    }
+    .p-hr  {background:#fdf4ff;color:#a855f7;border:1px solid #e9d5ff}
+    .p-prod{background:#f0fdf4;color:#059669;border:1px solid #a7f3d0}
 
     #frame{flex:1;width:100%;border:none;display:block}
-
-    /* ripple */
-    .ripple{position:absolute;border-radius:50%;transform:scale(0);animation:rpl .5s linear;pointer-events:none}
-    .c-hrms .ripple{background:rgba(59,130,246,.15)}
-    .c-prod .ripple{background:rgba(139,92,246,.15)}
-    @keyframes rpl{to{transform:scale(5);opacity:0}}
   </style>
 </head>
 <body>
 
+<!-- LANDING -->
 <div id="landing">
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
+  <h1 class="lnd-title">Choose Your Product</h1>
+  <p class="lnd-sub">Select a product suite to get started with <span>workforce management</span>.</p>
 
-  <header class="lnd-head">
-    <div class="logo-wrap">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-    </div>
-    <div class="brand">Invent<em>ia</em></div>
-    <div class="tagline">Select your workspace to continue</div>
-  </header>
+  <div class="cards-row">
 
-  <div class="cards">
-
-    <!-- HRMS -->
-    <div class="card c-hrms" onclick="openOrbit(event,this,'hrms')">
-      <div class="card-top">
-        <div class="icon-box ib-hrms">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <div class="card-info">
-          <div class="card-name">HRMS Orbit</div>
-          <div class="card-desc">Payroll, recruitment, benefits, compliance &amp; all HR modules</div>
-        </div>
+    <!-- HR Suite -->
+    <div class="pcard" id="c-hr" onclick="openOrbit(event,this,'hr')">
+      <div class="picon pi-hr">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </div>
-      <div class="tags">
-        <span class="tag tb">Payroll</span>
-        <span class="tag tg">Recruitment</span>
-        <span class="tag ta">Onboarding</span>
-        <span class="tag tb">Benefits</span>
-        <span class="tag tb">HR Helpdesk</span>
+      <div class="ptext">
+        <div class="pname">HR Suite</div>
+        <div class="psub">Last activity 1 hour ago</div>
       </div>
-      <div class="card-foot">
-        <span class="cta">Enter HRMS <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-        <span class="badge bl">Live</span>
+      <div class="parrow">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
     </div>
 
-    <!-- Productivity -->
-    <div class="card c-prod" onclick="openOrbit(event,this,'prod')">
-      <div class="card-top">
-        <div class="icon-box ib-prod">
-          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        </div>
-        <div class="card-info">
-          <div class="card-name">Productivity Orbit</div>
-          <div class="card-desc">Tasks, projects, shifts, timesheets, approvals &amp; team collaboration</div>
-        </div>
+    <!-- Productivity Suite -->
+    <div class="pcard" id="c-prod" onclick="openOrbit(event,this,'prod')">
+      <div class="picon pi-prod">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
       </div>
-      <div class="tags">
-        <span class="tag tv">Tasks</span>
-        <span class="tag tv">Projects</span>
-        <span class="tag tb">Timesheet</span>
-        <span class="tag tg">Shifts</span>
-        <span class="tag tp">Approvals</span>
+      <div class="ptext">
+        <div class="pname">Productivity Suite</div>
+        <div class="psub">Last activity 1 hour ago</div>
       </div>
-      <div class="card-foot">
-        <span class="cta">Enter Orbit <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-        <span class="badge bv">Beta</span>
+      <div class="parrow">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    </div>
+
+    <!-- Activity Suite (Coming Soon) -->
+    <div class="pcard disabled">
+      <div class="picon pi-act">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <div class="ptext">
+        <div class="pname">Activity Suite</div>
+        <div class="psub soon">Coming Soon</div>
+      </div>
+      <div class="parrow">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
     </div>
 
   </div>
-  <div class="foot">&copy; 2026 Inventia &middot; All rights reserved</div>
 </div>
 
+<!-- APP VIEWER -->
 <div id="viewer">
   <div id="topbar">
     <button id="back-btn" onclick="closeOrbit()">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Orbits
+      Products
     </button>
     <span id="pill"></span>
   </div>
@@ -807,45 +786,37 @@ Status: Paid on April 30\`:S.includes("attendance")||S.includes("punch")?"For mi
 </body>
 </html>`;
 
-let hrmsUrl = null;
-let prodUrl = null;
+const cache = {};
 
 function getBlobUrl(initScreen) {
-  // Inject window.name setter before </head> so it runs before React mounts
+  if (cache[initScreen]) return cache[initScreen];
   const injected = APP.replace(
     '<\/head>',
-    '<script>window.name="'+ initScreen +'";<\/script></head>'
+    '<script>window.name="' + initScreen + '";<\/script></head>'
   );
   const blob = new Blob([injected], { type: 'text/html' });
-  return URL.createObjectURL(blob);
+  cache[initScreen] = URL.createObjectURL(blob);
+  return cache[initScreen];
 }
 
 function openOrbit(e, card, type) {
   // ripple
   const span = document.createElement('span');
   const r = card.getBoundingClientRect();
-  const sz = Math.max(r.width, r.height) * 2;
+  const sz = Math.max(r.width, r.height) * 2.5;
   span.style.cssText = `width:${sz}px;height:${sz}px;left:${e.clientX-r.left-sz/2}px;top:${e.clientY-r.top-sz/2}px;`;
   span.className = 'ripple';
   card.appendChild(span);
   span.addEventListener('animationend', () => span.remove());
 
-  const isHRMS = type === 'hrms';
-  const initScreen = isHRMS ? 'hr-services' : 'dashboard';
-  const label     = isHRMS ? 'HRMS Orbit' : 'Productivity Orbit';
+  const isHR   = type === 'hr';
+  const screen = isHR ? 'hr-services' : 'dashboard';
+  const label  = isHR ? 'HR Suite' : 'Productivity Suite';
+  const cls    = isHR ? 'p-hr' : 'p-prod';
 
-  // lazy-create blob URLs
-  if (isHRMS && !hrmsUrl) hrmsUrl = getBlobUrl('hr-services');
-  if (!isHRMS && !prodUrl)  prodUrl  = getBlobUrl('dashboard');
-
-  const frame = document.getElementById('frame');
-  frame.src = isHRMS ? hrmsUrl : prodUrl;
-
-  const btn  = document.getElementById('back-btn');
-  const pill = document.getElementById('pill');
-  btn.className  = isHRMS ? 'hrms-btn' : 'prod-btn';
-  pill.textContent = label;
-  pill.className = isHRMS ? 'p-hrms' : 'p-prod';
+  document.getElementById('frame').src = getBlobUrl(screen);
+  document.getElementById('pill').textContent = label;
+  document.getElementById('pill').className   = cls;
 
   document.getElementById('landing').classList.add('out');
   document.getElementById('viewer').classList.add('open');
@@ -856,6 +827,5 @@ function closeOrbit() {
   document.getElementById('landing').classList.remove('out');
 }
 </script>
-
 </body>
 </html>
